@@ -1,0 +1,100 @@
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
+class RealFirePainter extends CustomPainter {
+  final double progress; // من 0.0 إلى 1.0
+
+  RealFirePainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0.0 || progress >= 1.0) return;
+
+    final paint = Paint()..style = PaintingStyle.fill;
+    
+    // موقع خط النار الحالي حسب نسبة التقدم
+    double currentX = size.width * (1.0 - progress);
+
+    // 1. رسم توهج النيران الخلفي (Glow)
+    final glowRect = Rect.fromLTWH(currentX - 20, 0, 40, size.height);
+    paint.shader = ui.Gradient.linear(
+      Offset(currentX - 20, 0),
+      Offset(currentX + 20, 0),
+      [Colors.transparent, Colors.deepOrange.withOpacity(0.8), Colors.red.withOpacity(0.9), Colors.transparent],
+    );
+    canvas.drawRect(glowRect, paint);
+
+    // 2. رسم ألسنة اللهب المتعرجة فوق خط الحريق
+    final flamePath = Path();
+    flamePath.moveTo(currentX, size.height);
+    
+    // رسم أشكال لهب عشوائية ومتعرجة للأعلى
+    for (double y = size.height; y >= 0; y -= 15) {
+      double wave = math.sin((y + progress * 50) * 0.2) * 10;
+      flamePath.lineTo(currentX + wave + (math.Random().nextDouble() * 8), y);
+    }
+    flamePath.lineTo(currentX + 30, 0);
+    flamePath.lineTo(currentX + 30, size.height);
+    flamePath.close();
+
+    paint.shader = ui.Gradient.linear(
+      Offset(currentX, 0),
+      Offset(currentX + 30, 0),
+      [Colors.yellow, Colors.deepOrange, Colors.red.shade900, Colors.transparent],
+    );
+    canvas.drawPath(flamePath, paint);
+
+    // 3. رسم شرار متطاير (Particles)
+    final sparkPaint = Paint()
+      ..color = Colors.amberAccent
+      ..style = PaintingStyle.fill;
+
+    for (int i = 0; i < 8; i++) {
+      double offsetX = currentX + (math.Random().nextDouble() * 40 - 20);
+      double offsetY = math.Random().nextDouble() * size.height;
+      double radius = math.Random().nextDouble() * 3 + 1;
+      canvas.drawCircle(Offset(offsetX, offsetY), radius, sparkPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant RealFirePainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+
+
+class BurningCardWithRealFire extends StatelessWidget {
+  final Widget child;
+  final AnimationController controller;
+
+  const BurningCardWithRealFire({
+    Key? key,
+    required this.child,
+    required this.controller,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, childWidget) {
+        return CustomPaint(
+          foregroundPainter: RealFirePainter(controller.value),
+          child: ClipRect(
+            child: Align(
+              alignment: Alignment.centerRight,
+              widthFactor: (1.0 - controller.value).clamp(0.0, 1.0),
+              child: Opacity(
+                opacity: (1.0 - controller.value * 1.2).clamp(0.0, 1.0),
+                child: childWidget,
+              ),
+            ),
+          ),
+        );
+      },
+      child: child,
+    );
+  }
+}
