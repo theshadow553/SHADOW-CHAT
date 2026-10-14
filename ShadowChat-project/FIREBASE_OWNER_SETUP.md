@@ -53,6 +53,39 @@ in the app.
 3. Run the app and try Shadow Chat. Gemini Developer API has a free usage tier;
    check the current quotas and model availability in the Firebase console.
 
+The Flutter app uses Firebase AI Logic by default. For local debugging only,
+you can pass `GEMINI_API_KEY` at build time to use the Gemini Developer API
+directly. Flutter does not load `.env` files automatically. This debug path
+requires Firebase initialization and a signed-in user, and the key is embedded
+in the debug build; never distribute that build. Release builds continue to
+use Firebase AI Logic.
+
+From the `ShadowChat-project` directory, pass the key from the existing local
+environment file for an Android run:
+
+```sh
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+   | head -n 1 | tr -d '\r')"
+flutter run --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
+unset GEMINI_API_KEY
+```
+
+For Web, include the Firebase Web app values expected by `main.dart` as well:
+
+```sh
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+   | head -n 1 | tr -d '\r')"
+flutter run -d chrome \
+   --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY" \
+  --dart-define=FIREBASE_WEB_API_KEY=YOUR_FIREBASE_WEB_API_KEY \
+  --dart-define=FIREBASE_WEB_APP_ID=1:YOUR_PROJECT_NUMBER:web:YOUR_WEB_APP_ID
+unset GEMINI_API_KEY
+```
+
+The local environment file containing the key is currently tracked by Git.
+If this repository has been shared or published, revoke and rotate the key;
+adding the file to `.gitignore` alone will not remove it from Git history.
+
 For production, configure Firebase App Check to help protect AI requests from
 abuse. Firestore Rules control access to Firestore data; they do not authorize
 Gemini requests.
