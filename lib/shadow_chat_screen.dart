@@ -419,10 +419,11 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
       if (reply == null || reply.trim().isEmpty) {
         throw const FormatException('Gemini returned an empty reply');
       }
+      final replyText = reply.trim();
       if (!mounted) return;
       setState(() {
         _conversation.add(
-          _ShadowChatMessage(text: reply.trim(), isUser: false),
+          _ShadowChatMessage(text: replyText, isUser: false),
         );
       });
       _scrollConversationToBottom();
