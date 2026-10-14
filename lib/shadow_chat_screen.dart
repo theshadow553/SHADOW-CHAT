@@ -35,7 +35,6 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
   bool _doorOpened = false;
   bool _doorOpening = false;
   bool _didQueueDoorPrecache = false;
-  bool _doorWindPrepared = false;
   bool _doorWindStarted = false;
   bool _isSendingMessage = false;
   String? _geminiError;
@@ -46,7 +45,6 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
   late final AnimationController _forestAnimationController;
   late final AnimationController _doorBurnController;
   final AudioPlayer _doorWindPlayer = AudioPlayer();
-  late final Future<void> _doorWindInitialization;
   late final VideoPlayerController _doorVideoController;
   late final Future<void> _doorVideoInitialization;
 
@@ -60,7 +58,6 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    _doorWindInitialization = _initializeDoorWind();
     _doorVideoInitialization = _initializeDoorVideo();
     _forestAnimationController = AnimationController(
       vsync: this,
@@ -209,26 +206,11 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
 
   Future<void> _playDoorWind() async {
     try {
-      if (!_doorWindPrepared) {
-        await _doorWindInitialization;
-      }
-      if (_doorWindPrepared) {
-        await _doorWindPlayer.resume();
-      } else {
-        await _doorWindPlayer.play(AssetSource('audio/wind_gust.mp3'));
-      }
+      await _doorWindPlayer.setVolume(1.0);
+      await _doorWindPlayer.play(AssetSource('audio/wind_gust.mp3'));
       _doorWindStarted = true;
     } catch (error) {
       debugPrint('Door wind playback failed: $error');
-    }
-  }
-
-  Future<void> _initializeDoorWind() async {
-    try {
-      await _doorWindPlayer.setSource(AssetSource('audio/wind_gust.mp3'));
-      _doorWindPrepared = true;
-    } catch (error) {
-      debugPrint('Door wind preload failed: $error');
     }
   }
 
