@@ -1,0 +1,66 @@
+name: Deploy Flutter web to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ShadowChat-project/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Install dependencies
+        working-directory: ShadowChat-project
+        run: flutter pub get
+      - name: Build web app
+        working-directory: ShadowChat-project
+        env:
+          FIREBASE_WEB_API_KEY: ${{ vars.FIREBASE_WEB_API_KEY || secrets.FIREBASE_WEB_API_KEY }}
+          FIREBASE_WEB_APP_ID: ${{ vars.FIREBASE_WEB_APP_ID || secrets.FIREBASE_WEB_APP_ID }}
+        run: |
+          if [[ -z "$FIREBASE_WEB_API_KEY" || -z "$FIREBASE_WEB_APP_ID" ]]; then
+            echo "::error::Set FIREBASE_WEB_API_KEY and FIREBASE_WEB_APP_ID in repository Actions variables."
+            exit 1
+          fi
+          flutter build web --release \
+            --base-href "/${{ github.event.repository.name }}/" \
+            --dart-define=FIREBASE_WEB_API_KEY="$FIREBASE_WEB_API_KEY" \
+            --dart-define=FIREBASE_WEB_APP_ID="$FIREBASE_WEB_APP_ID"
+      - name: Add nojekyll marker
+        run: touch ShadowChat-project/build/web/.nojekyll
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ShadowChat-project/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
