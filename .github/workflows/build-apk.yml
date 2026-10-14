@@ -3,9 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [main]
-    paths:
-      - "ShadowChat-project/**"
-      - ".github/workflows/build-apk.yml"
   workflow_dispatch:
 
 permissions:
@@ -30,11 +27,9 @@ jobs:
           channel: stable
 
       - name: Install dependencies
-        working-directory: ShadowChat-project
         run: flutter pub get
 
       - name: Build release APK
-        working-directory: ShadowChat-project
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: flutter build apk --release --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
@@ -43,6 +38,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shadow-chat-apk-${{ github.run_number }}
-          path: ShadowChat-project/build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30

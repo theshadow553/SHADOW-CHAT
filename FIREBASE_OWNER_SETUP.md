@@ -61,11 +61,11 @@ build and never distribute it. Without the define, the app uses Firebase AI
 Logic. The direct API path still requires Firebase initialization and a signed-in
 user.
 
-From the `ShadowChat-project` directory, pass the key from the existing local
-environment file for an Android run:
+From the repository root, pass the key from the existing local environment
+file for an Android run:
 
 ```sh
-GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './ShadowChat-project/- .env.' \
    | head -n 1 | tr -d '\r')"
 flutter run --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
 unset GEMINI_API_KEY
@@ -74,7 +74,7 @@ unset GEMINI_API_KEY
 Build a release APK for private testing with the same key:
 
 ```sh
-GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './ShadowChat-project/- .env.' \
    | head -n 1 | tr -d '\r')"
 flutter build apk --release --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
 unset GEMINI_API_KEY
@@ -82,8 +82,8 @@ unset GEMINI_API_KEY
 
 The APK is written to `build/app/outputs/flutter-apk/app-release.apk`.
 
-To build an APK on GitHub, push a change under `ShadowChat-project/` to `main`
-or run **Build Android APK** from the repository Actions tab. Download the
+To build an APK on GitHub, push a change to `main` or run **Build Android APK**
+from the repository Actions tab. Download the
 `shadow-chat-apk-*` artifact from the completed run. To use the direct Gemini
 API path in that APK, add a repository Actions secret named `GEMINI_API_KEY`;
 the workflow does not read the local `.env.` file. Without that secret, the APK
@@ -92,7 +92,7 @@ uses Firebase AI Logic.
 For Web, include the Firebase Web app values expected by `main.dart` as well:
 
 ```sh
-GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './ShadowChat-project/- .env.' \
    | head -n 1 | tr -d '\r')"
 flutter run -d chrome \
    --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY" \

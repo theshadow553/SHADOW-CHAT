@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "ShadowChat-project/**"
-      - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -31,10 +28,8 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Install dependencies
-        working-directory: ShadowChat-project
         run: flutter pub get
       - name: Build web app
-        working-directory: ShadowChat-project
         env:
           FIREBASE_WEB_API_KEY: ${{ vars.FIREBASE_WEB_API_KEY || secrets.FIREBASE_WEB_API_KEY }}
           FIREBASE_WEB_APP_ID: ${{ vars.FIREBASE_WEB_APP_ID || secrets.FIREBASE_WEB_APP_ID }}
@@ -44,11 +39,11 @@ jobs:
             --dart-define=FIREBASE_WEB_API_KEY="$FIREBASE_WEB_API_KEY" \
             --dart-define=FIREBASE_WEB_APP_ID="$FIREBASE_WEB_APP_ID"
       - name: Add nojekyll marker
-        run: touch ShadowChat-project/build/web/.nojekyll
+        run: touch build/web/.nojekyll
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ShadowChat-project/build/web
+          path: build/web
 
   deploy:
     needs: build
