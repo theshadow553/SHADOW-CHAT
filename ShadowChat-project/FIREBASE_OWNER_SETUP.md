@@ -53,12 +53,13 @@ in the app.
 3. Run the app and try Shadow Chat. Gemini Developer API has a free usage tier;
    check the current quotas and model availability in the Firebase console.
 
-The Flutter app uses Firebase AI Logic by default. For local debugging only,
-you can pass `GEMINI_API_KEY` at build time to use the Gemini Developer API
-directly. Flutter does not load `.env` files automatically. This debug path
-requires Firebase initialization and a signed-in user, and the key is embedded
-in the debug build; never distribute that build. Release builds continue to
-use Firebase AI Logic.
+The Flutter app uses Firebase AI Logic by default. Passing `GEMINI_API_KEY` at
+build time switches requests to the Gemini Developer API directly, including
+in a release APK. Flutter does not load `.env` files automatically. The key is
+embedded in the APK and can be extracted, so use this only for a private test
+build and never distribute it. Without the define, the app uses Firebase AI
+Logic. The direct API path still requires Firebase initialization and a signed-in
+user.
 
 From the `ShadowChat-project` directory, pass the key from the existing local
 environment file for an Android run:
@@ -69,6 +70,17 @@ GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
 flutter run --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
 unset GEMINI_API_KEY
 ```
+
+Build a release APK for private testing with the same key:
+
+```sh
+GEMINI_API_KEY="$(sed -n 's/^GEMINI_API_KEY=//p' './- .env.' \
+   | head -n 1 | tr -d '\r')"
+flutter build apk --release --dart-define="GEMINI_API_KEY=$GEMINI_API_KEY"
+unset GEMINI_API_KEY
+```
+
+The APK is written to `build/app/outputs/flutter-apk/app-release.apk`.
 
 For Web, include the Firebase Web app values expected by `main.dart` as well:
 

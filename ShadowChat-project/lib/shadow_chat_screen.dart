@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -350,7 +349,7 @@ class _ShadowChatScreenState extends State<ShadowChatScreen>
       ].join('\n');
 
       String? reply;
-      if (kDebugMode && _geminiApiKey.isNotEmpty) {
+      if (_geminiApiKey.isNotEmpty) {
         final response = await http.post(
           Uri.https(
             'generativelanguage.googleapis.com',
