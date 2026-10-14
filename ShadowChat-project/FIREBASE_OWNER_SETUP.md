@@ -82,6 +82,13 @@ unset GEMINI_API_KEY
 
 The APK is written to `build/app/outputs/flutter-apk/app-release.apk`.
 
+To build an APK on GitHub, push a change under `ShadowChat-project/` to `main`
+or run **Build Android APK** from the repository Actions tab. Download the
+`shadow-chat-apk-*` artifact from the completed run. To use the direct Gemini
+API path in that APK, add a repository Actions secret named `GEMINI_API_KEY`;
+the workflow does not read the local `.env.` file. Without that secret, the APK
+uses Firebase AI Logic.
+
 For Web, include the Firebase Web app values expected by `main.dart` as well:
 
 ```sh
